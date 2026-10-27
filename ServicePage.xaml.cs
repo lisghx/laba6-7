@@ -71,14 +71,6 @@ namespace Tuzhilova_Autoservic
                 currentServices = currentServices.Where(p => (p.Discount >= 0.7 && p.Discount <= 1)).ToList();
 
             currentServices = currentServices.Where(p => p.Title.ToLower().Contains(TBoxSearch.Text.ToLower())).ToList();
-
-            if (RDButtonDown.IsChecked.Value)
-                currentServices = currentServices.OrderByDescending(p => p.Cost).ToList();
-            if (RDButtonUp.IsChecked.Value)
-                currentServices = currentServices.OrderBy(p => p.Cost).ToList();
-
-            ServiceListView.ItemsSource = currentServices;
-
             if(RDButtonDown.IsChecked.Value)
             {
                 currentServices=currentServices.OrderByDescending(p => p.Cost).ToList();
@@ -144,11 +136,14 @@ namespace Tuzhilova_Autoservic
         int CountPage;//общ кол-во страниц
         int CurrentPage = 0;//текущ страница
 
+        List<Service> CurrentPageList = new List<Service>();
+        List<Service> TableList;
         private void ChangePage(int direction, int? selectedPage) //функция отвеч  за разделение листа
         {
+            
             CurrentPageList.Clear();
             CountRecords = TableList.Count;
-            if(CountRecords %10>0)
+            if(CountRecords % 10 > 0)
             {
                 CountPage = CountRecords / 10 + 1;
             }
@@ -160,11 +155,11 @@ namespace Tuzhilova_Autoservic
             int min;
             if(selectedPage.HasValue)
             {
-                if(selectedPage>=0&&selectedPage<CountPage)
+                if(selectedPage >= 0 && selectedPage <= CountPage)
                 {
                     CurrentPage=(int)selectedPage;
                     min = CurrentPage * 10 + 10 < CountRecords ? CurrentPage * 10 + 10 : CountRecords;
-                    for(int i=CurrentPage*10;i<min;i++)
+                    for(int i = CurrentPage * 10; i<min; i++)
                     {
                         CurrentPageList.Add(TableList[i]);
                     }
@@ -188,9 +183,10 @@ namespace Tuzhilova_Autoservic
                         {
                             Ifupdate = false;
                         }
-                        break;
-                        case 2:
-                        if(CurrentPage<CountPage-1)
+                    break;
+
+                    case 2:
+                        if(CurrentPage < CountPage - 1)
                         {
                             CurrentPage++;
                             min = CurrentPage * 10 + 10 < CountRecords ? CurrentPage * 10 + 10 : CountRecords;
@@ -203,23 +199,25 @@ namespace Tuzhilova_Autoservic
                         {
                             Ifupdate = false; 
                         } 
-                        break;
-                        case 3:
-                        if(Ifupdate)
-                        {
-                            PageListBox.Items.Clear();
-                            for(int i=1;i<=CountPage;i++)
-                            {
-                                PageListBox.Items.Add(i);
-                            }
-                            PageListBox.SelectedIndex = CurrentPage;
-
-                            ServiceListView.ItemsSource = CurrentPageList;
-                            ServiceListView.Items.Refresh();
-                        }
-                        break;
+                    break;
                 }
             }
+            if (Ifupdate)
+            {
+                PageListBox.Items.Clear();
+                for (int i = 1; i <= CountPage; i++)
+                {
+                    PageListBox.Items.Add(i);
+                }
+                PageListBox.SelectedIndex = CurrentPage;
+                ServiceListView.ItemsSource = CurrentPageList;
+                ServiceListView.Items.Refresh();
+
+                min = CurrentPage * 10 + 10 < CountRecords ? CurrentPage * 10 + 10 : CountRecords;
+                TBCount.Text = min.ToString();
+                TBAllRecords.Text = " из " + CountRecords.ToString();
+            }
+
         }
         private void LeftDirButton_Click(object sender, RoutedEventArgs e)
         {
